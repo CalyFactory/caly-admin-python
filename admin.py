@@ -22,14 +22,17 @@ def page_login_post():
     response = make_response(redirect("/admin"))
 
     session['caly_admin_name'] = request.form['name']
-    #response.set_cookie("caly_admin_name", request.form['name'])
 
     return response
 
-@app.route("/admin")
-def admin():
-    return session['caly_admin_name']
-#    return request.cookies.get('caly_admin_name')
+@app.route("/admin", methods= ["GET"])
+def page_admin_get():
+    return render_template('admin.html')
+
+@app.route("/admin", methods=["POST"])
+def page_admin_post():
+    
+    return "hi"
 
 app.secret_key = "aaaaa"
 app.run(host='0.0.0.0', port = 5000)

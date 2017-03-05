@@ -157,6 +157,11 @@ def page_admin_post():
     
     return redirect('/admin')
 
+@app.route("/admin", methods=["DEL"])
+def page_admin_del():
+    session.pop['caly_admin_name']
+    return redirect('/login')
+
 def randomfilename(filename):
     filetype = ''.join(filename.split('.')[-1])
     return str(uuid.uuid4())+"."+str(filetype)

@@ -84,6 +84,12 @@ def page_admin_get():
 
 @app.route("/admin", methods=["POST"])
 def page_admin_post():
+
+    if 'logout' in request.form:
+        session.pop('caly_admin_name')
+        return redirect('/login')
+
+
     reco_register = session['caly_admin_name']
     reco_region = request.form['region']
     reco_category = request.form['category']
@@ -156,11 +162,6 @@ def page_admin_post():
 
     
     return redirect('/admin')
-
-@app.route("/admin", methods=["DEL"])
-def page_admin_del():
-    session.pop['caly_admin_name']
-    return redirect('/login')
 
 def randomfilename(filename):
     filetype = ''.join(filename.split('.')[-1])

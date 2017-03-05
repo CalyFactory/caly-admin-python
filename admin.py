@@ -48,6 +48,8 @@ def page_login_post():
 
 @app.route("/admin", methods= ["GET"])
 def page_admin_get():
+    if 'caly_admin_name' not in session:
+        return redirect("/login")
     result = fetch_all_json(
         db_manager.query(
             """

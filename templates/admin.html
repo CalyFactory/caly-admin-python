@@ -1,0 +1,203 @@
+<html>
+
+<body>
+
+<table border="1"  align="center" width = "70%">
+
+<tr>
+    <td colspan="11">
+        <marquee bgColor="yellow" behavior=alternate><p style="color:#FF0000";>CALYFACTORY ADMIN</p></marquee>   
+    </td>
+</tr>
+<tr>
+    <td colspan="11">
+        <center>
+        데이터 추가 
+        </center>
+    </td>
+</tr>
+<form method="POST" action="admin"  enctype="multipart/form-data">
+    <tr>
+        <td>
+            지역
+        </td>
+        <td>
+            카테고리 
+        </td>
+        <td>
+            나이
+        </td>
+        <td>
+            성별 
+        </td>
+        <td>
+            상호명 
+        </td>
+        <td>
+            이미지 
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <input type="text" name="region"/>
+        </td>
+        <td>
+            <select name="category">
+                <option value="restaurant">Restaurant</option>
+                <option value="cafe">Cafe</option>
+                <option value="place">Place</option>
+            </select>
+        </td>
+        <td>
+            <input type="text" name="age"/>
+        </td>
+        <td>
+            <select name="gender">
+                <option value="1">남자</option>
+                <option value="2">여자</option>
+                <option value="3">무관</option>
+            </select>
+        </td>
+        <td>
+            <input type="text" name="title"/>
+        </td>
+        <td>
+            <input type="file" name="img" accept=".jpg,.png,.jped,.bmp,.gif,.bpg"/>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            주소 
+        </td>
+        <td>
+            거리정보 
+        </td>
+        <td>
+            가격
+        </td>
+        <td>
+            지도 주소 
+        </td>
+        <td>
+            딥링크 주소 
+        </td>
+        <td>
+            저장
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <input type="text" name="address"/>
+        </td>
+        <td>
+            <input type="text" name="distance"/>
+        </td>
+        <td>
+            <input type="text" name="price"/>
+        </td>
+        <td>
+            <input type="text" name="map_url"/>
+        </td>
+        <td>
+            <input type="text" name="deep_url"/>
+        </td>
+        <td>
+            <input type="submit" style="background-color:red;width:100%">
+        </td>
+    </tr>
+</form>
+
+</table>
+<hr/>
+
+<table border = 1 align="center" width="70%">
+    <tr>
+        <td colspan="2">
+                <center><p style="background-color:yellow;color:#FF0000";>작성 현황</p></center>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <center>
+            작성자 
+            </center>
+        </td>
+        <td>
+            <center>
+            작성수 
+            </center>
+        </td>
+    </tr>
+    {% for key, value in write_result.items() %}
+
+        <tr>
+            <td> {{key}} </td>
+            <td> {{value}} </td>
+        </tr>
+
+    {% endfor %}
+
+</table>
+<hr/>
+<table border = 1 align="center" width="70%">
+    <tr>
+        <td colspan="20">
+            <center>
+                <p style="background-color:yellow;color:#FF0000";>최근 입력된 데이터(30개)</p>
+            </center>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            작성시간
+        </td>
+        <td>
+            작성자
+        </td>
+        <td>
+            고유번호
+        </td>
+        <td>
+            지역 
+        </td>
+        <td>
+            카테고리
+        </td>
+        <td>
+            상호명
+        </td>
+        <td>
+            거리
+        </td>
+    </tr>
+    {% for item in reco_result %}
+
+        <tr>
+            <td>{{item['created']}}
+            </td>
+            <td>{{ item['register'] }}
+            </td>
+            <td>{{ item['reco_hashkey'] }}
+            </td>
+            <td>{{ item['region'] }}
+            </td>
+            <td>{{ item['category'] }}
+            </td>
+            <td>{{ item['title'] }}
+            </td>
+            <td>{{ item['distance'] }}
+            </td>
+        </tr>
+    {% endfor %}
+
+</table>
+
+<hr/>
+<form method="POST" align="center" width="70%">
+    <input type="hidden" value="logout" name="logout"/>
+    <input type="submit" value="로그아웃"/>
+</form>
+
+</body>
+
+</html>

@@ -80,15 +80,45 @@ def page_admin_get():
         if row['register'] != 'None':
             reco_result.append(row)
 
-    return render_template('admin.html', write_result = write_result, reco_result = reco_result)
+    result = fetch_all_json(
+        db_manager.query(
+            """
+            SELECT tag_name 
+            FROM HASHTAG 
+            LIMIT 10000;
+            """
+        )
+    )
+
+    hashtags=""
+    for row in result:
+        hashtags+="#"+row['tag_name']+" "
+
+    return render_template('admin.html', write_result = write_result, reco_result = reco_result, hashtags = hashtags)
 
 @app.route("/admin", methods=["POST"])
 def page_admin_post():
 
+    if 'caly_admin_name' not in session:
+        return redirect("/login")
     if 'logout' in request.form:
         session.pop('caly_admin_name')
         return redirect('/login')
-
+    if 'delete' in request.form:
+        hashkey = request.form['delete']
+        db_manager.query(
+            """
+            DELETE FROM RECOMMENDATION
+            WHERE 
+            `reco_hashkey` = %s
+            """
+            ,
+            (
+                hashkey,
+            )
+        )
+        return redirect("/admin")
+    
 
     reco_register = session['caly_admin_name']
     reco_region = request.form['region']
@@ -97,7 +127,7 @@ def page_admin_post():
     reco_gender = request.form['gender']
     reco_title = request.form['title']
     reco_img = request.files['img']
-    reco_imgfile = randomfilename(reco_img.filename)
+    reco_imgfile = randomFileName(reco_img.filename)
     reco_img.save(os.path.join('./img/', reco_imgfile))
 
     reco_address = request.form['address']
@@ -105,8 +135,71 @@ def page_admin_post():
     reco_price = request.form['price']
     reco_map = request.form['map_url']
     reco_deep = request.form['deep_url']
+    reco_hashtags = request.form['hashtags']
 
     reco_hashkey = str(uuid.uuid4())
+
+    print(reco_hashtags)
+    hashtaglist = reco_hashtags.split('/')
+    print(hashtaglist)
+    for hashtag in hashtaglist:
+        print(hashtag)
+        result = fetch_all_json(
+            db_manager.query(
+                """
+                SELECT * 
+                FROM HASHTAG 
+                WHERE 
+                tag_name = %s
+                """
+                ,
+                (
+                    str(hashtag),
+                )
+            )
+        )
+        if len(result)==0:
+            db_manager.query(
+                """
+                INSERT INTO HASHTAG 
+                (`tag_name`)
+                VALUES 
+                ( %s )
+                """
+                ,
+                (
+                    str(hashtag),
+                )
+            )
+        tagId = fetch_all_json(
+            db_manager.query(
+                """
+                SELECT * 
+                FROM HASHTAG 
+                WHERE 
+                tag_name = %s
+                """
+                ,
+                (
+                    str(hashtag),
+                )
+            )
+        )[0]['code']
+
+        db_manager.query(
+            """
+            INSERT INTO RECO_HASHTAG 
+            (`reco_hashkey`, `hash_code`)
+            VALUES
+            ( %s, %s )
+            """
+            ,
+            (
+                reco_hashkey,
+                tagId
+            )
+        )
+
     db_manager.query(
         """
         INSERT INTO RECOMMENDATION
@@ -163,7 +256,7 @@ def page_admin_post():
     
     return redirect('/admin')
 
-def randomfilename(filename):
+def randomFileName(filename):
     filetype = ''.join(filename.split('.')[-1])
     return str(uuid.uuid4())+"."+str(filetype)
 

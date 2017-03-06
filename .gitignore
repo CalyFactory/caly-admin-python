@@ -11,6 +11,8 @@ __pycache__/
 *.so
 
 key/
+nohup.out
+img/
 
 # Distribution / packaging
 .Python

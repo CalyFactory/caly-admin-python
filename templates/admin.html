@@ -2,6 +2,11 @@
 
 <body>
 
+<form method="POST" align="center" width="70%">
+    <input type="hidden" value="logout" name="logout"/>
+    <input type="submit" value="로그아웃"/>
+</form>
+<hr/>
 <table border="1"  align="center" width = "70%">
 
 <tr>
@@ -39,7 +44,7 @@
     </tr>
     <tr>
         <td>
-            <input type="text" name="region"/>
+            <input type="text" name="region" placeholder="ex)강남"/>
         </td>
         <td>
             <select name="category">
@@ -49,7 +54,7 @@
             </select>
         </td>
         <td>
-            <input type="text" name="age"/>
+            <input type="text" name="age" placeholder="ex)20"/>
         </td>
         <td>
             <select name="gender">
@@ -59,7 +64,7 @@
             </select>
         </td>
         <td>
-            <input type="text" name="title"/>
+            <input type="text" name="title" placeholder="ex)호타루"/>
         </td>
         <td>
             <input type="file" name="img" accept=".jpg,.png,.jped,.bmp,.gif,.bpg"/>
@@ -87,22 +92,32 @@
     </tr>
     <tr>
         <td>
-            <input type="text" name="address"/>
+            <input type="text" name="address" placeholder="ex)서울시 역삼동 테헤란로 311 1층"/>
         </td>
         <td>
-            <input type="text" name="distance"/>
+            <input type="text" name="distance" placeholder="ex)선릉역에서 걸어서 4분"/>
         </td>
         <td>
-            <input type="text" name="price"/>
+            <input type="text" name="price" placeholder="ex)8000"/>
         </td>
         <td>
-            <input type="text" name="map_url"/>
+            <input type="text" name="map_url" placeholder="ex) http://map.naver.com/?pinId=206015....."/>
         </td>
         <td>
-            <input type="text" name="deep_url"/>
+            <input type="text" name="deep_url" placeholder="ex) http://blog.naver.com/...."/>
         </td>
         <td>
             <input type="submit" style="background-color:red;width:100%">
+        </td>
+    </tr>
+    <tr>
+        <td colspan="100">
+            해시태그( ex: 맛있는/여친이랑 가기 좋은/분위기있는/역에서 가까운  등으로 '/'로 구분해서 넣어주세요. 목록에 없는걸 넣으면, 자동으로 추가됩니다.)
+        </td>
+    </tr>
+    <tr>
+        <td colspan="100">
+            <input type="text" name="hashtags" style="width:100%" placeholder="맛있는/여친이랑 가기 좋은/분위기있는/역에서 가까운"/>
         </td>
     </tr>
 </form>
@@ -110,6 +125,21 @@
 </table>
 <hr/>
 
+<table border = 1 align="center" width="70%">
+    <tr>
+        <td colspan="2">
+                <center><p style="background-color:yellow;color:#FF0000";>해시태그 목록</p></center>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            {{hashtags}}
+        </td>
+    </tr>
+
+</table>
+
+<hr/>
 <table border = 1 align="center" width="70%">
     <tr>
         <td colspan="2">
@@ -169,7 +199,11 @@
         <td>
             거리
         </td>
+        <td>
+            관리
+        </td>
     </tr>
+    <form method="post">
     {% for item in reco_result %}
 
         <tr>
@@ -187,16 +221,17 @@
             </td>
             <td>{{ item['distance'] }}
             </td>
+            <td>
+                <input type="hidden" name="delete" value= "{{ item['reco_hashkey'] }}"/>
+                <input type="submit" value="삭제"/>     
+            </td>
         </tr>
     {% endfor %}
 
+    </form>
 </table>
 
 <hr/>
-<form method="POST" align="center" width="70%">
-    <input type="hidden" value="logout" name="logout"/>
-    <input type="submit" value="로그아웃"/>
-</form>
 
 </body>
 

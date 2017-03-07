@@ -24,13 +24,13 @@
 <form method="POST" action="admin"  enctype="multipart/form-data">
     <tr>
         <td>
-            지역
+            지역(대분류)
+        </td>
+        <td>
+            지역(중분류)
         </td>
         <td>
             카테고리 
-        </td>
-        <td>
-            나이
         </td>
         <td>
             성별 
@@ -44,7 +44,10 @@
     </tr>
     <tr>
         <td>
-            <input type="text" name="region" placeholder="ex)강남"/>
+            <input type="text" name="region1" placeholder="ex)서부"/>
+        </td>
+        <td>
+            <input type="text" name="region2" placeholder="ex)강남"/>
         </td>
         <td>
             <select name="category">
@@ -52,9 +55,6 @@
                 <option value="cafe">Cafe</option>
                 <option value="place">Place</option>
             </select>
-        </td>
-        <td>
-            <input type="text" name="age" placeholder="ex)20"/>
         </td>
         <td>
             <select name="gender">
@@ -211,7 +211,8 @@
             </td>
             <td>{{ item['register'] }}
             </td>
-            <td>{{ item['reco_hashkey'] }}
+            <td>
+                <a href = "/admin/edit?hashkey={{item['reco_hashkey']}}">{{ item['reco_hashkey'] }}</a>
             </td>
             <td>{{ item['region'] }}
             </td>
@@ -256,9 +257,36 @@
         </tr>
         <tr>
             <td colspan="20">
-                <input type="submit" value="검색"/>
+                <input type="submit" value="검색" style="width:100%"/>
             </td>
         </tr>
+        {% for item in search_result %}
+        <form method="post">
+        <tr>
+            <td>{{item['created']}}
+            </td>
+            <td>{{ item['register'] }}
+            </td>
+            <td>
+            <a href = "/admin/edit?hashkey={{item['reco_hashkey']}}">{{ item['reco_hashkey'] }}</a>
+            </td>
+            <td>{{ item['region'] }}
+            </td>
+            <td>{{ item['category'] }}
+            </td>
+            <td>{{ item['title'] }}
+            </td>
+            <td>{{ item['distance'] }}
+            </td>
+            <td>{{ item['distance'] }}
+            </td>
+            <td>
+                <input type="hidden" name="rightcheck" value= "{{ item['reco_hashkey'] }}"/>
+<!--               <input type="submit" value="저작권 해결됨"/>     -->
+            </td>
+            </tr>
+        </form>
+        {% endfor %}
     </form>
     
 </table>

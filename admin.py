@@ -4,12 +4,14 @@ from flask import render_template
 from flask import request
 from flask import make_response
 from flask import session
+from flask import send_from_directory
 import os
 import uuid
 import db_manager
 import datetime
 
-app = Flask(__name__)
+
+app = Flask(__name__, static_url_path='/img', static_folder='img')
 def fetch_all_json(result):
     lis = []
     
@@ -76,7 +78,6 @@ def page_admin_get():
     )
     reco_result = []
     for row in result:
-        print(row['reco_hashkey'])
         if row['register'] != 'None':
             reco_result.append(row)
 
@@ -94,7 +95,53 @@ def page_admin_get():
     for row in result:
         hashtags+="#"+row['tag_name']+" "
 
-    return render_template('admin.html', write_result = write_result, reco_result = reco_result, hashtags = hashtags)
+    search_result = []
+    if 'search' in request.args:
+        print("search")
+        
+        if 'onlymy' in request.args:
+            search_result = fetch_all_json(
+                db_manager.query(
+                    """
+                    SELECT *
+                    FROM RECOMMENDATION
+                    WHERE
+                    title like %s   AND 
+                    register = %s
+                    """
+                    ,
+                    (
+                        "%"+request.args.get('searchtext')+"%",
+                        session['caly_admin_name']
+                    )
+                )
+            )
+        else:
+            search_result = fetch_all_json(
+                db_manager.query(
+                    """
+                    SELECT *
+                    FROM RECOMMENDATION
+                    WHERE
+                    title like %s  
+                    """
+                    ,
+                    (
+                        "%"+request.args.get('searchtext')+"%",
+                    )
+                )
+            )
+        
+        print(result)
+
+
+    return render_template(
+        'admin.html', 
+        write_result = write_result, 
+        reco_result = reco_result, 
+        hashtags = hashtags, 
+        search_result = search_result
+    )
 
 @app.route("/admin", methods=["POST"])
 def page_admin_post():
@@ -121,14 +168,18 @@ def page_admin_post():
     
 
     reco_register = session['caly_admin_name']
-    reco_region = request.form['region']
+    reco_region1 = request.form['region1']
     reco_category = request.form['category']
-    reco_age = request.form['age']
+    reco_region2 = request.form['region2']
     reco_gender = request.form['gender']
     reco_title = request.form['title']
-    reco_img = request.files['img']
-    reco_imgfile = randomFileName(reco_img.filename)
-    reco_img.save(os.path.join('./img/', reco_imgfile))
+
+    if 'img' not in request.files:
+        reco_imgfile = ""
+    else:
+        reco_img = request.files['img']
+        reco_imgfile = randomFileName(reco_img.filename)
+        reco_img.save(os.path.join('./img/', reco_imgfile))
 
     reco_address = request.form['address']
     reco_distance = request.form['distance']
@@ -207,7 +258,7 @@ def page_admin_post():
             reco_hashkey,
             region,
             category,
-            age,
+            main_region,
             gender,
             title,
             img_url,
@@ -238,9 +289,9 @@ def page_admin_post():
         ,
         (
             reco_hashkey,
-            reco_region,
+            reco_region2,
             reco_category,
-            reco_age,
+            reco_region1,
             reco_gender,
             reco_title,
             reco_imgfile,
@@ -255,6 +306,121 @@ def page_admin_post():
 
     
     return redirect('/admin')
+
+@app.route("/admin/edit", methods=["GET"])
+def page_edit_get():
+
+    print(request.args['hashkey'])
+    result = fetch_all_json(
+        db_manager.query(
+            """
+            SELECT * 
+            FROM RECOMMENDATION
+            WHERE 
+            reco_hashkey = %s
+            """
+            ,
+            (
+                request.args['hashkey'],
+            )
+        )
+    )
+    data = result[0]
+
+    result = fetch_all_json(
+        db_manager.query(
+            """
+            SELECT *
+            FROM RECO_HASHTAG
+            RIGHT JOIN HASHTAG
+            ON RECO_HASHTAG.hash_code = HASHTAG.code
+            WHERE 
+            reco_hashkey = %s
+            """
+            ,
+            (
+                request.args['hashkey'],
+            )
+        )
+    )
+
+    c = 0
+    for row in result:
+        if c==0:
+            data['hashtags'] = row['tag_name']
+        else:
+            data['hashtags']+= "/" + row['tag_name']
+        c+=1
+
+    print(data)
+
+    return render_template(
+        'edit.html',
+        data = data
+    )
+
+@app.route("/admin/edit", methods = ["POST"])
+def page_edit_post():
+
+    reco_hashkey = request.form['reco_hashkey']
+    reco_register = session['caly_admin_name']
+    reco_region1 = request.form['region1']
+    reco_category = request.form['category']
+    reco_region2 = request.form['region2']
+    reco_gender = request.form['gender']
+    reco_title = request.form['title']
+
+    if 'img' not in request.files:
+        reco_imgfile = request.form['img_before']
+    else:
+        reco_img = request.files['img']
+        reco_imgfile = randomFileName(reco_img.filename)
+        reco_img.save(os.path.join('./img/', reco_imgfile))
+
+    reco_address = request.form['address']
+    reco_distance = request.form['distance']
+    reco_price = request.form['price']
+    reco_map = request.form['map_url']
+    reco_deep = request.form['deep_url']
+    reco_hashtags = request.form['hashtags']
+
+    db_manager.query(
+        """
+        UPDATE RECOMMENDATION
+        SET  
+        main_region = %s,
+        region = %s, 
+        category = %s,
+        gender = %s,
+        title = %s,
+        img_url = %s,
+        address = %s,
+        price = %s,
+        map_url = %s,
+        deep_url = %s,
+        distance = %s
+        WHERE 
+        reco_hashkey = %s
+        """
+        ,
+        (
+            reco_region1,
+            reco_region2,
+            reco_category,
+            reco_gender,
+            reco_title,
+            reco_imgfile,
+            reco_address,
+            reco_price,
+            reco_map,
+            reco_deep,
+            reco_distance,
+            reco_hashkey
+        )
+    )
+    
+
+    return redirect("admin")
 
 def randomFileName(filename):
     filetype = ''.join(filename.split('.')[-1])

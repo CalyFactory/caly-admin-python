@@ -1,0 +1,141 @@
+<html>
+
+<body>
+<form method="GET" action="/admin" align="center" width="70%">
+    <input type="submit" value="관리자로 돌아가기"/>
+</form>
+<hr/>
+<table border="1"  align="center" width = "70%">
+
+<tr>
+    <td colspan="11">
+        <marquee bgColor="yellow" behavior=alternate><p style="color:#FF0000";>EDIT MODE</p></marquee>   
+    </td>
+</tr>
+<tr>
+    <td colspan="11">
+        <center>
+        데이터 수정 
+        </center>
+    </td>
+</tr>
+<form method="POST" action="/admin/edit"  enctype="multipart/form-data">
+    <tr>
+        <td colspan="20">
+            {{ data['reco_hashkey'] }}
+            <input type="hidden" name="reco_hashkey" value={{ data['reco_hashkey'] }} />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            지역(대분류)
+        </td>
+        <td>
+            지역(중분류)
+        </td>
+        <td>
+            카테고리 
+        </td>
+        <td>
+            성별 
+        </td>
+        <td>
+            상호명 
+        </td>
+        <td>
+            이미지 
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <input type="text" name="region1" placeholder="ex)서부" value={{ data['main_region'] }} />
+        </td>
+        <td>
+            <input type="text" name="region2" placeholder="ex)강남" value={{ data['region'] }} />
+        </td>
+        <td>
+            <select name="category">
+                <option value="restaurant">Restaurant</option>
+                <option value="cafe">Cafe</option>
+                <option value="place">Place</option>
+            </select>
+        </td>
+        <td>
+            <select name="gender"  value={{ data['gender'] }}>
+                <option value="1">남자</option>
+                <option value="2">여자</option>
+                <option value="3">무관</option>
+            </select>
+        </td>
+        <td>
+            <input type="text" name="title" placeholder="ex)호타루"  value={{ data['title'] }} />
+        </td>
+        <td>
+            이미지 변경할때만 선택하세요~
+            <input type="file" name="img" accept=".jpg,.png,.jped,.bmp,.gif,.bpg"/>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            주소 
+        </td>
+        <td>
+            거리정보 
+        </td>
+        <td>
+            가격
+        </td>
+        <td>
+            지도 주소 
+        </td>
+        <td>
+            딥링크 주소 
+        </td>
+        <td>
+            저장
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <input type="text" name="address" placeholder="ex)서울시 역삼동 테헤란로 311 1층"  value="{{ data['address'] }}" />
+        </td>
+        <td>
+            <input type="text" name="distance" placeholder="ex)선릉역에서 걸어서 4분" value="{{ data['distance'] }}" />
+        </td>
+        <td>
+            <input type="text" name="price" placeholder="ex)8000" value="{{ data['price'] }}" />
+        </td>
+        <td>
+            <input type="text" name="map_url" placeholder="ex) http://map.naver.com/?pinId=206015....."  value="{{ data['map_url'] }}" />        </td>
+        <td>
+            <input type="text" name="deep_url" placeholder="ex) http://blog.naver.com/...." value="{{ data['deep_url'] }}" />
+        </td>
+        <td>
+            <input type="submit" style="background-color:red;width:100%" value="수정">
+        </td>
+    </tr>
+    <tr>
+        <td colspan="100">
+            해시태그( ex: 맛있는/여친이랑 가기 좋은/분위기있는/역에서 가까운  등으로 '/'로 구분해서 넣어주세요. 목록에 없는걸 넣으면, 자동으로 추가됩니다.)
+        </td>
+    </tr>
+    <tr>
+        <td colspan="100">
+            <input type="text" name="hashtags" style="width:100%" placeholder="맛있는/여친이랑 가기 좋은/분위기있는/역에서 가까운" value="{{ data['hashtags'] }}" />
+        </td>
+    </tr>
+    <tr>
+        <td colspan="20">
+            <center>
+                <input type="hidden" name="img_before" value="{{ data['img_url'] }}" />
+             {{ data['img_url'] }} <br/>
+             <img src="/img/{{ data['img_url'] }}" style="max-width:600px;max-height:600px" />
+            </center>
+        </td>
+    </tr>
+</form>
+
+</table>
+</body>
+
+</html>

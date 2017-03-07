@@ -187,6 +187,7 @@ def page_admin_post():
     reco_map = request.form['map_url']
     reco_deep = request.form['deep_url']
     reco_hashtags = request.form['hashtags']
+    reco_memo = request.form['memo']
 
     reco_hashkey = str(uuid.uuid4())
 
@@ -267,10 +268,12 @@ def page_admin_post():
             map_url,
             register,
             deep_url,
-            distance
+            distance,
+            memo
         )
         VALUES
         (
+            %s,
             %s,
             %s,
             %s,
@@ -300,7 +303,8 @@ def page_admin_post():
             reco_map,
             reco_register,
             reco_deep,
-            reco_distance
+            reco_distance,
+            reco_memo
         )
     )
 
@@ -369,6 +373,7 @@ def page_edit_post():
     reco_region2 = request.form['region2']
     reco_gender = request.form['gender']
     reco_title = request.form['title']
+    reco_memo = request.form['memo']
 
     if 'img' not in request.files:
         reco_imgfile = request.form['img_before']
@@ -398,7 +403,8 @@ def page_edit_post():
         price = %s,
         map_url = %s,
         deep_url = %s,
-        distance = %s
+        distance = %s,
+        memo = %s
         WHERE 
         reco_hashkey = %s
         """
@@ -415,7 +421,8 @@ def page_edit_post():
             reco_map,
             reco_deep,
             reco_distance,
-            reco_hashkey
+            reco_hashkey,
+            reco_memo
         )
     )
     
@@ -427,6 +434,6 @@ def randomFileName(filename):
     return str(uuid.uuid4())+"."+str(filetype)
 
 app.secret_key = "aaaaa"
-app.run(host='0.0.0.0', port = 5000, debug=True)
+app.run(host='0.0.0.0', port = 8080, debug=True)
 
 print("hi")

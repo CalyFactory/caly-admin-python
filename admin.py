@@ -261,6 +261,6 @@ def randomFileName(filename):
     return str(uuid.uuid4())+"."+str(filetype)
 
 app.secret_key = "aaaaa"
-app.run(host='0.0.0.0', port = 8080, debug=True)
+app.run(host='0.0.0.0', port = 5000, debug=True)
 
 print("hi")

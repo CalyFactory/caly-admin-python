@@ -203,8 +203,8 @@
             관리
         </td>
     </tr>
-    <form method="post">
     {% for item in reco_result %}
+    <form method="post">
 
         <tr>
             <td>{{item['created']}}
@@ -226,9 +226,9 @@
                 <input type="submit" value="삭제"/>     
             </td>
         </tr>
+    </form>
     {% endfor %}
 
-    </form>
 </table>
 
 <hr/>

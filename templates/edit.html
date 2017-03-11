@@ -1,9 +1,9 @@
 <html>
 
 <body>
-<form method="GET" action="/admin" align="center" width="70%">
-    <input type="submit" value="관리자로 돌아가기"/>
-</form>
+    <center>
+    <a href="javascript:history.go(-1)">관리자로 돌아가기</a>
+    </center>
 <hr/>
 <table border="1"  align="center" width = "70%">
 
@@ -71,7 +71,9 @@
             <input type="text" name="title" placeholder="ex)호타루"  value={{ data['title'] }} />
         </td>
         <td>
-            이미지 변경할때만 선택하세요~
+            이미지 변경할때만 선택하세요~<br/>
+            인스타그램은 이미지 업로드없이 출처만 넣으면 자동으로 이미지를 가져옵니다.
+            (url이 인스타그램일 경우에만 동작함)
             <input type="file" name="img" accept=".jpg,.png,.jped,.bmp,.gif,.bpg"/>
         </td>
     </tr>

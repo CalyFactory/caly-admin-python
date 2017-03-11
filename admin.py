@@ -109,6 +109,8 @@ def page_admin_get():
                     WHERE
                     title like %s   AND 
                     register = %s
+                    ORDER BY 
+                    created DESC
                     """
                     ,
                     (
@@ -125,6 +127,8 @@ def page_admin_get():
                     FROM RECOMMENDATION
                     WHERE
                     title like %s  
+                    ORDER BY 
+                    created DESC
                     """
                     ,
                     (

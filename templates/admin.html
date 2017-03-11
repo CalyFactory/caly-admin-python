@@ -298,7 +298,12 @@
             </td>
             <td>{{ item['distance'] }}
             </td>
-            <td>{{ item['distance'] }}
+            <td>
+                {% if item['img_url']|length > 2 %}
+                    <a href="/img/{{ item['img_url'] }}">이미지</a>
+                {% else %}
+                    이미지없음
+                {% endif %}
             </td>
             <td>
                 <input type="hidden" name="rightcheck" value= "{{ item['reco_hashkey'] }}"/>

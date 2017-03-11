@@ -55,16 +55,16 @@
         </td>
         <td>
             <select name="category">
-                <option value="restaurant">Restaurant</option>
-                <option value="cafe">Cafe</option>
-                <option value="place">Place</option>
+                <option value="restaurant" {% if data['category'] == "restaurant" %} selected {% endif %} >Restaurant</option>
+                <option value="cafe" {% if data['category'] == "cafe" %} selected {% endif %}>Cafe</option>
+                <option value="place" {% if data['category'] == "place" %} selected {% endif %}>Place</option>
             </select>
         </td>
         <td>
-            <select name="gender"  value={{ data['gender'] }}>
-                <option value="1">남자</option>
-                <option value="2">여자</option>
-                <option value="3">무관</option>
+            <select name="gender">
+                <option value="1" {% if data['gender'] == "1" %} selected {% endif %}>남자</option>
+                <option value="2" {% if data['gender'] == "2" %} selected {% endif %}>여자</option>
+                <option value="3" {% if data['gender'] == "3" %} selected {% endif %}>무관</option>
             </select>
         </td>
         <td>

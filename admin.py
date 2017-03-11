@@ -86,6 +86,7 @@ def page_admin_get():
             """
             SELECT tag_name 
             FROM HASHTAG 
+            order by tag_name ASC
             LIMIT 10000;
             """
         )
@@ -108,6 +109,8 @@ def page_admin_get():
                     WHERE
                     title like %s   AND 
                     register = %s
+                    ORDER BY 
+                    created DESC
                     """
                     ,
                     (
@@ -124,6 +127,8 @@ def page_admin_get():
                     FROM RECOMMENDATION
                     WHERE
                     title like %s  
+                    ORDER BY 
+                    created DESC
                     """
                     ,
                     (
@@ -174,7 +179,7 @@ def page_admin_post():
     reco_gender = request.form['gender']
     reco_title = request.form['title']
 
-    if 'img' not in request.files:
+    if request.files['img'].filename == '':
         reco_imgfile = ""
     else:
         reco_img = request.files['img']
@@ -187,6 +192,8 @@ def page_admin_post():
     reco_map = request.form['map_url']
     reco_deep = request.form['deep_url']
     reco_hashtags = request.form['hashtags']
+    reco_memo = request.form['memo']
+    reco_source = request.form['source_url']
 
     reco_hashkey = str(uuid.uuid4())
 
@@ -267,10 +274,14 @@ def page_admin_post():
             map_url,
             register,
             deep_url,
-            distance
+            distance,
+            memo,
+            source_url
         )
         VALUES
         (
+            %s,
+            %s,
             %s,
             %s,
             %s,
@@ -300,7 +311,9 @@ def page_admin_post():
             reco_map,
             reco_register,
             reco_deep,
-            reco_distance
+            reco_distance,
+            reco_memo,
+            reco_source
         )
     )
 
@@ -369,8 +382,10 @@ def page_edit_post():
     reco_region2 = request.form['region2']
     reco_gender = request.form['gender']
     reco_title = request.form['title']
+    reco_memo = request.form['memo']
+    reco_source = request.form['source_url']
 
-    if 'img' not in request.files:
+    if request.files['img'].filename == '':
         reco_imgfile = request.form['img_before']
     else:
         reco_img = request.files['img']
@@ -398,7 +413,9 @@ def page_edit_post():
         price = %s,
         map_url = %s,
         deep_url = %s,
-        distance = %s
+        distance = %s,
+        memo = %s,
+        source_url = %s
         WHERE 
         reco_hashkey = %s
         """
@@ -415,6 +432,8 @@ def page_edit_post():
             reco_map,
             reco_deep,
             reco_distance,
+            reco_memo,
+            reco_source,
             reco_hashkey
         )
     )
@@ -427,6 +446,6 @@ def randomFileName(filename):
     return str(uuid.uuid4())+"."+str(filetype)
 
 app.secret_key = "aaaaa"
-app.run(host='0.0.0.0', port = 5000, debug=True)
+app.run(host='0.0.0.0', port = 8080, debug=True)
 
 print("hi")

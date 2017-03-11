@@ -7,6 +7,10 @@
     <input type="submit" value="로그아웃"/>
 </form>
 <hr/>
+<p style="text-align:center;">
+<img src= "/img/f1c6da05-2e6a-4742-8751-6d379525626b.png" style="max-width:500px;max-height:500px;"/>
+</p>
+<hr />
 <table border="1"  align="center" width = "70%">
 
 <tr>
@@ -60,7 +64,7 @@
             <select name="gender">
                 <option value="1">남자</option>
                 <option value="2">여자</option>
-                <option value="3">무관</option>
+                <option value="3" selected="selected">무관</option>
             </select>
         </td>
         <td>
@@ -84,7 +88,7 @@
             지도 주소 
         </td>
         <td>
-            딥링크 주소 
+            블로그 주소 
         </td>
         <td>
             저장
@@ -118,6 +122,22 @@
     <tr>
         <td colspan="100">
             <input type="text" name="hashtags" style="width:100%" placeholder="맛있는/여친이랑 가기 좋은/분위기있는/역에서 가까운"/>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3">
+            메모
+        </td>
+        <td colspan="3">
+            이미지 출처
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3">
+            <input type="text" name="memo" style="width:100%" placeholder="메모내용"/>
+        </td>
+        <td colspan="3">
+            <input type="text" name="source_url" style="width:100%" placeholder="인스타그램 url 등"/>
         </td>
     </tr>
 </form>
@@ -278,7 +298,12 @@
             </td>
             <td>{{ item['distance'] }}
             </td>
-            <td>{{ item['distance'] }}
+            <td>
+                {% if item['img_url']|length > 2 %}
+                    <a href="/img/{{ item['img_url'] }}">이미지</a>
+                {% else %}
+                    이미지없음
+                {% endif %}
             </td>
             <td>
                 <input type="hidden" name="rightcheck" value= "{{ item['reco_hashkey'] }}"/>

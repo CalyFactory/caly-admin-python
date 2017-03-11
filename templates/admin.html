@@ -4,7 +4,7 @@
 
 var hashtaglist;
 function onload(){
-    hashtaglist = document.getElementById("hashtaglist").split(" ");
+    hashtaglist = document.getElementById("hashtaglist").value.split("#");
 }
 
 function onChange(){
@@ -12,6 +12,14 @@ function onChange(){
     lastTag = inputTags[inputTags.length-1]
     console.log(lastTag);
     
+    outputdata = "";
+    for(var idx in hashtaglist){
+        if(hashtaglist[idx].includes(lastTag)){
+            outputdata+="#"+hashtaglist[idx]+" ";
+        }
+    }
+
+    document.getElementById("hashtagfilter").innerText = outputdata;
 }
 </script>
 </head>
@@ -144,7 +152,7 @@ function onChange(){
             name="hashtags" 
             style="width:100%" 
             placeholder="맛있는/여친이랑 가기 좋은/분위기있는/역에서 가까운"
-            onkeyup="onChange();" onpaste="onChange();" oninput="onChange();"
+            onkeyup="onChange();"
             />
         </td>
     </tr>
@@ -179,6 +187,7 @@ function onChange(){
         <td>
             <input type="hidden" id="hashtaglist" value="{{hashtags}}"/>
             <div id="hashtagfilter">
+                {{hashtags}}
             </div>
         </td>
     </tr>

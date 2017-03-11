@@ -86,6 +86,7 @@ def page_admin_get():
             """
             SELECT tag_name 
             FROM HASHTAG 
+            order by tag_name ASC
             LIMIT 10000;
             """
         )
@@ -174,7 +175,7 @@ def page_admin_post():
     reco_gender = request.form['gender']
     reco_title = request.form['title']
 
-    if 'img' not in request.files:
+    if request.files['img'].filename == '':
         reco_imgfile = ""
     else:
         reco_img = request.files['img']
@@ -188,6 +189,7 @@ def page_admin_post():
     reco_deep = request.form['deep_url']
     reco_hashtags = request.form['hashtags']
     reco_memo = request.form['memo']
+    reco_source = request.form['source_url']
 
     reco_hashkey = str(uuid.uuid4())
 
@@ -269,10 +271,12 @@ def page_admin_post():
             register,
             deep_url,
             distance,
-            memo
+            memo,
+            source_url
         )
         VALUES
         (
+            %s,
             %s,
             %s,
             %s,
@@ -304,7 +308,8 @@ def page_admin_post():
             reco_register,
             reco_deep,
             reco_distance,
-            reco_memo
+            reco_memo,
+            reco_source
         )
     )
 
@@ -374,8 +379,9 @@ def page_edit_post():
     reco_gender = request.form['gender']
     reco_title = request.form['title']
     reco_memo = request.form['memo']
+    reco_source = request.form['source_url']
 
-    if 'img' not in request.files:
+    if request.files['img'].filename == '':
         reco_imgfile = request.form['img_before']
     else:
         reco_img = request.files['img']
@@ -404,7 +410,8 @@ def page_edit_post():
         map_url = %s,
         deep_url = %s,
         distance = %s,
-        memo = %s
+        memo = %s,
+        source_url = %s
         WHERE 
         reco_hashkey = %s
         """
@@ -421,8 +428,9 @@ def page_edit_post():
             reco_map,
             reco_deep,
             reco_distance,
-            reco_hashkey,
-            reco_memo
+            reco_memo,
+            reco_source,
+            reco_hashkey
         )
     )
     

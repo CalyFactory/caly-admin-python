@@ -1,6 +1,21 @@
 <html>
+<head>
+<script>
 
-<body>
+var hashtaglist;
+function onload(){
+    hashtaglist = document.getElementById("hashtaglist").split(" ");
+}
+
+function onChange(){
+    inputTags = (document.getElementById("hashtags").value).split('/');
+    lastTag = inputTags[inputTags.length-1]
+    console.log(lastTag);
+    
+}
+</script>
+</head>
+<body onload="onload();">
 
 <form method="POST" align="center" width="70%">
     <input type="hidden" value="logout" name="logout"/>
@@ -123,7 +138,14 @@
     </tr>
     <tr>
         <td colspan="100">
-            <input type="text" name="hashtags" style="width:100%" placeholder="맛있는/여친이랑 가기 좋은/분위기있는/역에서 가까운"/>
+            <input 
+            id="hashtags"
+            type="text" 
+            name="hashtags" 
+            style="width:100%" 
+            placeholder="맛있는/여친이랑 가기 좋은/분위기있는/역에서 가까운"
+            onkeyup="onChange();" onpaste="onChange();" oninput="onChange();"
+            />
         </td>
     </tr>
     <tr>
@@ -155,7 +177,9 @@
     </tr>
     <tr>
         <td>
-            {{hashtags}}
+            <input type="hidden" id="hashtaglist" value="{{hashtags}}"/>
+            <div id="hashtagfilter">
+            </div>
         </td>
     </tr>
 

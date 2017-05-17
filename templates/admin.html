@@ -1,6 +1,10 @@
 <html>
+<head>
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+</head>
 
 <body>
+
 
 <form method="POST" align="center" width="70%">
     <input type="hidden" value="logout" name="logout"/>
@@ -11,7 +15,18 @@
 <img src= "/img/f1c6da05-2e6a-4742-8751-6d379525626b.png" style="max-width:500px;max-height:500px;"/>
 </p>
 <hr />
-<table border="1"  align="center" width = "70%">
+
+<table id="tbMango" border="1"  width = "100%" style="float:left;">
+    <tr>
+        <td colspan="2" bgcolor="yellow" align="center">
+        mango top 10
+        </td>        
+    </tr>    
+    <!-- <div  >
+    </div> -->
+</table>
+
+<table border="1"  width = "50%" style="float:left; margin-left: 20px">
 
 <tr>
     <td colspan="11">
@@ -26,7 +41,12 @@
     </td>
 </tr>
 <form method="POST" action="admin"  enctype="multipart/form-data">
+    
+
     <tr>
+
+    
+
         <td>
             지역(대분류)
         </td>
@@ -47,11 +67,13 @@
         </td>
     </tr>
     <tr>
+   
+
         <td>
             <input type="text" name="region1" placeholder="ex)서부"/>
         </td>
         <td>
-            <input type="text" name="region2" placeholder="ex)강남"/>
+            <input type="text" id="region2" name="region2" placeholder="ex)강남"/>
         </td>
         <td>
             <select name="category">
@@ -68,7 +90,7 @@
             </select>
         </td>
         <td>
-            <input type="text" name="title" placeholder="ex)호타루"/>
+            <input type="text" id = "title" name="title" placeholder="ex)호타루"/>
         </td>
         <td>
             <input type="file" name="img" accept=".jpg,.png,.jped,.bmp,.gif,.bpg"/>
@@ -96,16 +118,16 @@
     </tr>
     <tr>
         <td>
-            <input type="text" name="address" placeholder="ex)서울시 역삼동 테헤란로 311 1층"/>
+            <input type="text" id = "address" name="address" placeholder="ex)서울시 역삼동 테헤란로 311 1층"/>
         </td>
         <td>
             <input type="text" name="distance" placeholder="ex)선릉역에서 걸어서 4분"/>
         </td>
         <td>
-            <input type="text" name="price" placeholder="ex)8000"/>
+            <input type="text" id = "priceRange" name="price" placeholder="ex)8000"/>
         </td>
         <td>
-            <input type="text" name="map_url" placeholder="ex) http://map.naver.com/?pinId=206015....."/>
+            <input type="text" id = "mapUrl" name="map_url" placeholder="ex) http://map.naver.com/?pinId=206015....."/>
         </td>
         <td>
             <input type="text" name="deep_url" placeholder="ex) http://blog.naver.com/...."/>
@@ -318,4 +340,316 @@
 <hr/>
 </body>
 
+<script type="text/javascript">
+
+var selectedInput = null;
+$(function() {
+    $('#region2').focus(function() {
+        selectedInput = this;
+    }).blur(function(){
+        console.log('blur')
+        selectedInput = null;
+        getMangoInfo(this.value)
+    });
+
+
+});
+
+// $("button").click(function() {
+//         alert(this.id); // or alert($(this).attr('id'));
+// });
+function reply_click(clicked_id)
+{
+    console.log(clicked_id);
+    getDetailInfo(clicked_id)
+}
+
+
+function getDetailInfo(url){
+
+  $.get("http://dev.caly.io:7070/getDetailInfo?url="+encodeURIComponent("https://www.mangoplate.com"+url),function( data ) {
+        obj = JSON.parse(data)
+        // console.log(JSON.parse(data["name"]));
+        $("#title").attr("placeholder", "");
+        $("#address").attr("placeholder", "");
+        $("#priceRange").attr("placeholder", "");
+        
+        $('#title').val(obj.name)                
+        $('#address').val(obj.address)
+        $('#priceRange').val(obj.priceRange)
+        $('#mapUrl').val("http://map.naver.com/?isDetailAddress=true&isNewAddress=false&query="+Base64.encode(obj.address)+"&rcode=09410112&tab=1&type=ADDRESS&dlevel=12&enc=b64")
+
+
+  });
+  
+}
+
+function getMangoInfo(region){
+    console.log('call getMangoInfo')
+
+    $('#tbMango').empty() ;
+    $.get( "http://dev.caly.io:7070/getMangoInfo?region="+region, function( data ) {
+
+            obj = JSON.parse(data);            
+            var trHTML = '';
+            console.log(obj)
+            var trHTMLimg = ''
+            var trHTMLtitle = ''
+            var trHTMLpoint = ''
+            var trHTMLinfo = ''
+            var trHTMLview = ''
+            var trHTMLreview = ''
+            var trHTMLrowsInfo = ''
+            var trHTMLselectBtn = ''
+            
+            $.each(obj, function (i, item) {
+            
+            
+                trHTMLimg += '<td>' +
+                            ' <img src= "' + obj[i].img_url + '" ' +'style="width:100px;height:100px;"/>' +
+                            '</td>' 
+                
+                trHTMLtitle += '<td>' +
+                                '<a href= "https://www.mangoplate.com' + obj[i].link + '" ' + 'target="_blanck"> ' + obj[i].title + '</a>' +
+                            '</td>' 
+                trHTMLpoint += '<td>' +
+                                '점수: ' + obj[i].point +
+                            '</td>'                             
+                trHTMLinfo += '<td>' +
+                                '정보: ' + obj[i].etc + 
+                            '</td>'                                                         
+                trHTMLview += '<td>' +
+                                '조회수: ' + obj[i].view_count  + 
+                            '</td>'                      
+                trHTMLreview += '<td>' +
+                                '리뷰수: ' + obj[i].review_count +
+                            '</td>'           
+                trHTMLselectBtn += '<td>' +
+                                '<button type="button" id = '+ obj[i].link +' onClick="reply_click(this.id)" >여기로 결정 </button>' +
+                                '</td>'
+
+
+
+                // trHTML += '<td>' +
+                //             '<div style = "font-size: 0.7em width;120px";>' + 
+                //                 ' <img src= "' + obj[i].img_url + '" ' +'style="width:100px;height:100px;"/>' +
+                //                 '</br>' +   
+                //                 '<a href= "https://www.mangoplate.com' + obj[i].link + '" ' + 'target="_blanck"> ' + obj[i].title + '</a>' +
+                //                 '</br>' +
+                //                 'point: ' + obj[i].point +
+                //                 '</br>' +
+                //                 'info: ' + obj[i].etc + 
+                //                 '</br>' +
+                //                 'view: ' + obj[i].view_count +
+                //                 '</br>' +
+                //                 'review: ' + obj[i].review_count +
+                //             '</div>'+
+                //           '</td>'
+
+
+            });
+            // console.log(trHTML);
+// colspan="2"
+            // $('#tbMango').append(
+            //                     '<tr>'+
+            //                         '<td bgcolor="yellow" align="center">' +
+            //                         'mango top 10' +
+            //                         '</td> ' +                                                                                                                                     
+            //                     '</tr>' +
+
+            //                     '<tr>'+
+            //                         '<td >' +
+            //                             '음식점명' +
+            //                         '</td> ' +       
+            //                     '</tr>'+
+
+            //                     '<tr>'+
+            //                         '<td >' +
+            //                             '정보' +
+            //                         '</td> ' +       
+            //                     '</tr>'+
+
+            //                     '<tr>'+
+            //                         '<td >' +
+            //                             '조회수' +
+            //                         '</td> ' +       
+            //                     '</tr>'+
+
+            //                     '<tr>'+
+            //                         '<td >' +
+            //                             '조회수' +
+            //                         '</td> ' +       
+            //                     '</tr>'+               
+            //                     '<tr>'+
+            //                         '<td >' +
+            //                             '리뷰' +
+            //                         '</td> ' +       
+            //                     '</tr>'
+            // );            
+
+            $('#tbMango').append('<tr>'+trHTMLimg+'</tr>');
+            $('#tbMango').append('<tr>'+trHTMLtitle+'</tr>');
+            $('#tbMango').append('<tr>'+trHTMLpoint+'</tr>');
+            $('#tbMango').append('<tr>'+trHTMLinfo+'</tr>');
+            $('#tbMango').append('<tr>'+trHTMLview+'</tr>');
+            $('#tbMango').append('<tr>'+trHTMLreview+'</tr>');
+            $('#tbMango').append('<tr>'+trHTMLselectBtn+'</tr>');
+            
+            // $('#tbMango').append('<tr>'+trHTMLreview+'</tr>');
+            
+            // $('#tbMango').append(trHTML);
+
+        // <td>
+        //     <div style="font-size: 0.7em";> 
+        //         <img src= "http://cfile3.uf.tistory.com/image/24250B3E570C78840AF579" style="width:50px;height:50px;"/>    
+        //         </br>
+        //         <a href= " " target="_blanck">제목   </a>
+        //         </br>
+        //         평점: 3.0                         
+        //         위치:
+        //         </br>            
+        //         뷰:
+        //         후기:
+        //     </div>
+
+        // </td> 
+    });    
+}
+
+
+var Base64 = {
+
+
+    _keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+
+
+    encode: function(input) {
+        var output = "";
+        var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+        var i = 0;
+
+        input = Base64._utf8_encode(input);
+
+        while (i < input.length) {
+
+            chr1 = input.charCodeAt(i++);
+            chr2 = input.charCodeAt(i++);
+            chr3 = input.charCodeAt(i++);
+
+            enc1 = chr1 >> 2;
+            enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+            enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+            enc4 = chr3 & 63;
+
+            if (isNaN(chr2)) {
+                enc3 = enc4 = 64;
+            } else if (isNaN(chr3)) {
+                enc4 = 64;
+            }
+
+            output = output + this._keyStr.charAt(enc1) + this._keyStr.charAt(enc2) + this._keyStr.charAt(enc3) + this._keyStr.charAt(enc4);
+
+        }
+
+        return output;
+    },
+
+
+    decode: function(input) {
+        var output = "";
+        var chr1, chr2, chr3;
+        var enc1, enc2, enc3, enc4;
+        var i = 0;
+
+        input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+
+        while (i < input.length) {
+
+            enc1 = this._keyStr.indexOf(input.charAt(i++));
+            enc2 = this._keyStr.indexOf(input.charAt(i++));
+            enc3 = this._keyStr.indexOf(input.charAt(i++));
+            enc4 = this._keyStr.indexOf(input.charAt(i++));
+
+            chr1 = (enc1 << 2) | (enc2 >> 4);
+            chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+            chr3 = ((enc3 & 3) << 6) | enc4;
+
+            output = output + String.fromCharCode(chr1);
+
+            if (enc3 != 64) {
+                output = output + String.fromCharCode(chr2);
+            }
+            if (enc4 != 64) {
+                output = output + String.fromCharCode(chr3);
+            }
+
+        }
+
+        output = Base64._utf8_decode(output);
+
+        return output;
+
+    },
+
+    _utf8_encode: function(string) {
+        string = string.replace(/\r\n/g, "\n");
+        var utftext = "";
+
+        for (var n = 0; n < string.length; n++) {
+
+            var c = string.charCodeAt(n);
+
+            if (c < 128) {
+                utftext += String.fromCharCode(c);
+            }
+            else if ((c > 127) && (c < 2048)) {
+                utftext += String.fromCharCode((c >> 6) | 192);
+                utftext += String.fromCharCode((c & 63) | 128);
+            }
+            else {
+                utftext += String.fromCharCode((c >> 12) | 224);
+                utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+                utftext += String.fromCharCode((c & 63) | 128);
+            }
+
+        }
+
+        return utftext;
+    },
+
+    _utf8_decode: function(utftext) {
+        var string = "";
+        var i = 0;
+        var c = c1 = c2 = 0;
+
+        while (i < utftext.length) {
+
+            c = utftext.charCodeAt(i);
+
+            if (c < 128) {
+                string += String.fromCharCode(c);
+                i++;
+            }
+            else if ((c > 191) && (c < 224)) {
+                c2 = utftext.charCodeAt(i + 1);
+                string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
+                i += 2;
+            }
+            else {
+                c2 = utftext.charCodeAt(i + 1);
+                c3 = utftext.charCodeAt(i + 2);
+                string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
+                i += 3;
+            }
+
+        }
+
+        return string;
+    }
+
+}
+    
+    
+
+</script>
 </html>

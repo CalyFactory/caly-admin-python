@@ -9,6 +9,8 @@ import os
 import uuid
 import db_manager
 import datetime
+import crawl
+import json
 
 
 app = Flask(__name__, static_url_path='/img', static_folder='img')
@@ -29,6 +31,23 @@ def fetch_all_json(result):
             
             i=i+1
     return lis
+
+
+
+##api
+@app.route("/getMangoInfo",methods = ["GET"])
+def getMangoInfo():
+    region = request.args['region']
+    result = crawl.getBestPointList(region)
+    # print (str(result))
+    return json.dumps(result)
+
+@app.route("/getDetailInfo",methods = ["GET"])
+def getDetailInfo():
+    url = request.args['url']
+    result = crawl.getDetailInfo(url)
+    # print (str(result))
+    return json.dumps(result)    
 
 @app.route("/")
 def hello():
@@ -446,6 +465,6 @@ def randomFileName(filename):
     return str(uuid.uuid4())+"."+str(filetype)
 
 app.secret_key = "aaaaa"
-app.run(host='0.0.0.0', port = 8080, debug=True)
+app.run(host='0.0.0.0', port = 7070, debug=True)
 
 print("hi")

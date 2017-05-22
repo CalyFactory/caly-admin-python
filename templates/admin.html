@@ -140,7 +140,7 @@ function onChange(){
             <input type="text" id = "address" name="address" placeholder="ex)서울시 역삼동 테헤란로 311 1층"/>
         </td>
         <td>
-            <input type="text" name="distance" placeholder="ex)선릉역에서 걸어서 4분"/>
+            <input type="text" id = "distance" name="distance" placeholder="ex)선릉역에서 걸어서 4분"/>
         </td>
         <td>
             <input type="text" id = "priceRange" name="price" placeholder="ex)8000"/>
@@ -413,11 +413,15 @@ function getDetailInfo(url){
         $("#title").attr("placeholder", "");
         $("#address").attr("placeholder", "");
         $("#priceRange").attr("placeholder", "");
+        $("#distance").attr("placeholder", "");
+        $("#mapUrl").attr("placeholder", "");
         
         $('#title').val(obj.name)                
         $('#address').val(obj.address)
         $('#priceRange').val(obj.priceRange)
-        $('#mapUrl').val("http://map.naver.com/?isDetailAddress=true&isNewAddress=false&query="+Base64.encode(obj.address)+"&rcode=09410112&tab=1&type=ADDRESS&dlevel=12&enc=b64")
+        $('#distance').val(obj.predictionWalkingTime)
+        
+        $('#mapUrl').val("https://www.google.co.kr/maps/place/"+obj.address)
 
 
   });

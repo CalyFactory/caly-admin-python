@@ -3,11 +3,21 @@ from bs4 import BeautifulSoup
 # requests는 페이지를 요청한 응답을 받을때 사용합니다.
 import requests
 import urllib
+from bs4 import BeautifulSoup
 
 from urllib.request import FancyURLopener
-
+import math
 import requests
 import re
+import db_manager
+import util
+
+import db_manager
+import base64
+from selenium import webdriver
+from math import sin, cos, sqrt, atan2, radians 
+import json
+
 
 OPMAPER_SIZE = 10
 COMMA_SIZE = 3
@@ -22,38 +32,69 @@ headers = {
 
 
 def getLatLanFromMapUrl(map_url):
-    r = requests.get(map_url, headers=headers)
-    soup = BeautifulSoup(r.content, 'html.parser', from_encoding='utf-8')
+    
+    
 
+    # # browser = webdriver.PhantomJS()    
+    # browser = webdriver.PhantomJS()
 
-    if map_url.find("openapi.naver.com") == -1 :
-        try:
-            ogImage = soup.find("meta",  property="og:image")
-            # url = soup.find("meta",  property="og:url")
+    # browser.get(map_url)
+    # html = browser.page_source
+    
+    
+    try:
+        r = requests.get(map_url, headers=headers)
+        soup = BeautifulSoup(r.content, 'html.parser', from_encoding='utf-8')
+        
+        
+        result_dic = {}
+        op_image = soup.find("meta",  property="og:image")
+        print(op_image)
 
-            print(ogImage["content"] if ogImage else "No meta title given")
-
-            op_maperPos = ogImage["content"].find("og_map¢er")+ OPMAPER_SIZE
-            commaPos = ogImage["content"].find("%2C")
-            levelPos = ogImage["content"].find("&level")
-
-            result_dic = {}
-
-            #url에서 올바르게 파싱을 하였다면?
-            if commaPos != -1 :                     
-                lng = ogImage["content"][op_maperPos:commaPos]
-                lat = ogImage["content"][commaPos+COMMA_SIZE:levelPos]
-                print('long=>' + lng+ 'lat =>' + lat) 
-                result_dic['lng'] = lng
-                result_dic['lat'] = lat
-                return result_dic
-
-            else :
-                print('none default type')
-                return result_dic
-        except Exception as e:
+        op_maperPos = op_image["content"].find("center=")+ 7
+        commaPos = op_image["content"].find("%2C")
+        levelPos = op_image["content"].find("&zoom=")
+        
+        if commaPos != -1 :                     
+            lat = op_image["content"][op_maperPos:commaPos]
+            lng = op_image["content"][commaPos+COMMA_SIZE:levelPos]
+            print('long=>' + lng[:11] + 'lat =>' + lat[:10]) 
+            result_dic['lat'] = lat[:10]
+            result_dic['lng'] = lng[:11]
             return result_dic
-            print(str(e))
+        else:
+            print('none default type')
+            return result_dic   
+    except Exception as e:
+        return result_dic
+        print(str(e))
+
+    # if map_url.find("openapi.naver.com") == -1 :
+    #     try:
+    #         ogImage = soup.find("meta",  property="og:image")
+    #         # url = soup.find("meta",  property="og:url")
+
+    #         print(ogImage["content"] if ogImage else "No meta title given")
+
+    #         op_maperPos = ogImage["content"].find("center=")+ 7
+    #         commaPos = ogImage["content"].find("%2C")
+    #         levelPos = ogImage["content"].find("&level")
+
+    #         result_dic = {}
+
+    #         #url에서 올바르게 파싱을 하였다면?
+    #         if commaPos != -1 :                     
+    #             lng = ogImage["content"][op_maperPos:commaPos]
+    #             lat = ogImage["content"][commaPos+COMMA_SIZE:levelPos]
+    #             print('long=>' + lng+ 'lat =>' + lat) 
+    #             result_dic['lng'] = lng
+    #             result_dic['lat'] = lat
+    #             return result_dic
+
+    #         else :
+    #             print('none default type')
+    #             return result_dic
+
 
 def getInstaId(source_url):
 
@@ -126,15 +167,78 @@ def getDetailInfo(url):
     #trim을 써라 앞뒤 공백을 제거해준다.
     address = address[address.index('서'):]
     dic_result['address'] = address[:address.index('\n')]    
-    # dic_result['priceRange'] = detail_info.find("td",attrs={"itemprop":"priceRange"}).text
-    dic_result['priceRange'] = price_range
-    # dic_result['mapUrl'] = mapUrl
-    # http://map.naver.com/?isDetailAddress=true&isNewAddress=false&query="+Base64.encode(obj.address)+"&rcode=09410112&tab=1&type=ADDRESS&dlevel=12&enc=b64
     
+    dic_result['priceRange'] = price_range
+    print(dic_result['address'])
+    # b64_address = base64.b64encode(bytes(dic_result['address'],'utf-8'))
+    # mapurl로 부터 lat/lng을 가져오고. 몇분 걸리는지도 가져온다.
+    # dic_pos  = getLatLanFromMapUrl("http://map.naver.com/?isDetailAddress=true&isNewAddress=false&query="+b64_address.decode("utf-8") +"&rcode=09410112&tab=1&type=ADDRESS&dlevel=12&enc=b64")
+    dic_pos  = getLatLanFromMapUrl("https://www.google.co.kr/maps/place/"+str(dic_result['address']))
+    print(dic_pos)
+    try:
+        dic_result['predictionWalkingTime'] = getWalkTime(dic_pos)
+    except Exception as e:
+        dic_result['predictionWalkingTime'] = '미안 찾을수 없었따.'
+        print(str(e))
+
     print(dic_result)    
     return dic_result
 
-# getDetailInfo('dd')
+def getWalkTime(dic_pos):
+    
+    subways = util.fetch_all_json(
+        db_manager.query(
+          "SELECT *FROM SUBWAY_INFO WHERE address LIKE '서울특별%'"
+          )
+    ) 
+
+    stand_x = float(dic_pos['lat'])
+    stand_y = float(dic_pos['lng'])
+
+
+    minimum_dis = 100000000;
+    minimum_subway_index = 0;
+
+    for idx, subway in enumerate(subways):
+        subway_x = float(subway["x_point_wgs"])
+        subway_y = float(subway["y_point_wgs"])
+
+        dx = subway_x - stand_x
+        dy = subway_y - stand_y        
+        distance = math.sqrt(float(dx*dx)+float(dy*dy))
+        
+        if minimum_dis > distance:
+            minimum_dis = distance
+            minimum_subway_index = idx  
+
+    
+        if minimum_dis > distance:
+            minimum_dis = distance
+            minimum_subway_index = idx   
+
+    
+    subway_x = subways[minimum_subway_index]["x_point_wgs"]
+    subway_y = subways[minimum_subway_index]["y_point_wgs"]
+
+    print("place:")
+    print(dic_pos['lng'])
+    print(dic_pos['lat'])
+    print("subway:")
+    print(subways[minimum_subway_index])    
+
+    headers = {
+     'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36'
+    }
+
+    r = requests.get("http://map.naver.com/findroute2/findWalkRoute.nhn?call=route2&output=json&coord_type=naver&search=0&start="+dic_pos['lng']+"%2C"+dic_pos['lat']+"&destination="+subway_y+"%2C"+subway_x, headers=headers)
+    soup = BeautifulSoup(r.content, 'html.parser', from_encoding='utf-8')
+    station_title = subways[minimum_subway_index]["station_name"]
+    walking_time = json.loads(str(soup))["result"]["summary"]["totalTime"]
+
+    return station_title + "역에서 걸어서 "+ str(walking_time) +"분"
+
+
+
 
 
 

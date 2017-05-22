@@ -13,25 +13,10 @@ import datetime
 import crawl
 import json
 
+import util
+
 
 app = Flask(__name__, static_url_path='/img', static_folder='img')
-def fetch_all_json(result):
-    lis = []
-    
-    for row in result.fetchall():
-        i = 0
-        dic = {}
-        
-        for data in row:
-            if type(data) == datetime:
-                dic[result.keys()[i]]= str(data)
-            else:
-                dic[result.keys()[i]]= str(data)
-            if i == len(row)-1:
-                lis.append(dic)
-            
-            i=i+1
-    return lis
 
 
 
@@ -72,7 +57,7 @@ def page_login_post():
 def page_admin_get():
     if 'caly_admin_name' not in session:
         return redirect("/login")
-    result = fetch_all_json(
+    result = util.fetch_all_json(
         db_manager.query(
             """
             SELECT register, count(register)
@@ -86,7 +71,7 @@ def page_admin_get():
         if row['register'] != 'None':
             write_result[row['register']] = row['count(register)']
     
-    result = fetch_all_json(
+    result = util.fetch_all_json(
         db_manager.query(
             """
             SELECT * FROM RECOMMENDATION
@@ -101,7 +86,7 @@ def page_admin_get():
         if row['register'] != 'None':
             reco_result.append(row)
 
-    result = fetch_all_json(
+    result = util.fetch_all_json(
         db_manager.query(
             """
             SELECT tag_name 
@@ -121,7 +106,7 @@ def page_admin_get():
         print("search")
         
         if 'onlymy' in request.args:
-            search_result = fetch_all_json(
+            search_result = util.fetch_all_json(
                 db_manager.query(
                     """
                     SELECT *
@@ -140,7 +125,7 @@ def page_admin_get():
                 )
             )
         else:
-            search_result = fetch_all_json(
+            search_result = util.fetch_all_json(
                 db_manager.query(
                     """
                     SELECT *
@@ -252,7 +237,7 @@ def page_admin_post():
 
     for hashtag in hashtaglist:
         print(hashtag)
-        result = fetch_all_json(
+        result = util.fetch_all_json(
             db_manager.query(
                 """
                 SELECT * 
@@ -279,7 +264,7 @@ def page_admin_post():
                     str(hashtag),
                 )
             )
-        tagId = fetch_all_json(
+        tagId = util.fetch_all_json(
             db_manager.query(
                 """
                 SELECT * 
@@ -383,7 +368,7 @@ def page_admin_post():
 def page_edit_get():
 
     print(request.args['hashkey'])
-    result = fetch_all_json(
+    result = util.fetch_all_json(
         db_manager.query(
             """
             SELECT * 
@@ -399,7 +384,7 @@ def page_edit_get():
     )
     data = result[0]
 
-    result = fetch_all_json(
+    result = util.fetch_all_json(
         db_manager.query(
             """
             SELECT *

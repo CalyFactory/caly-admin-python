@@ -5,6 +5,7 @@ from flask import request
 from flask import make_response
 from flask import session
 from flask import send_from_directory
+import requests
 import os
 import uuid
 import db_manager
@@ -197,28 +198,58 @@ def page_admin_post():
     reco_region2 = request.form['region2']
     reco_gender = request.form['gender']
     reco_title = request.form['title']
+    reco_source = request.form['source_url']
+    
 
-    if request.files['img'].filename == '':
-        reco_imgfile = ""
+
+    if 'instagram' in reco_source:
+        source_user_id  = crawl.getInstaId(reco_source)
+        print(source_user_id);
+        print("instagram")
+        result = requests.post(
+            'http://www.dinsta.com/photos/',
+            data = {
+                'url': reco_source
+            }
+        ).text
+
+        tag_start = result.find("<img src=") + 10
+        tag_end = result.find("\"", tag_start)
+
+        img_url = result[tag_start:tag_end]
+        reco_imgfile = randomFileName(img_url)
+
+        with open("img/"+reco_imgfile, 'wb') as f:
+            f.write(requests.get(img_url).content)
     else:
-        reco_img = request.files['img']
-        reco_imgfile = randomFileName(reco_img.filename)
-        reco_img.save(os.path.join('./img/', reco_imgfile))
+        if request.files['img'].filename == '':
+            reco_imgfile = ""
+        else:
+            reco_img = request.files['img']
+            reco_imgfile = randomFileName(reco_img.filename)
+            reco_img.save(os.path.join('./img/', reco_imgfile))
 
     reco_address = request.form['address']
     reco_distance = request.form['distance']
     reco_price = request.form['price']
     reco_map = request.form['map_url']
+
+    location_info  = crawl.getLatLanFromMapUrl(reco_map)
+
+    lat = '0';
+    lng = '0';
+
+    if 'lat' in location_info:
+        lat = location_info['lat']
+        lng = location_info['lng']
+
     reco_deep = request.form['deep_url']
     reco_hashtags = request.form['hashtags']
     reco_memo = request.form['memo']
-    reco_source = request.form['source_url']
-
     reco_hashkey = str(uuid.uuid4())
-
-    print(reco_hashtags)
     hashtaglist = reco_hashtags.split('/')
-    print(hashtaglist)
+
+
     for hashtag in hashtaglist:
         print(hashtag)
         result = fetch_all_json(
@@ -295,10 +326,16 @@ def page_admin_post():
             deep_url,
             distance,
             memo,
-            source_url
+            source_url,
+            lat,
+            lng,
+            source_user_id
         )
         VALUES
         (
+            %s,
+            %s,
+            %s,
             %s,
             %s,
             %s,
@@ -332,7 +369,10 @@ def page_admin_post():
             reco_deep,
             reco_distance,
             reco_memo,
-            reco_source
+            reco_source,
+            lat,
+            lng,
+            source_user_id
         )
     )
 
@@ -404,17 +444,46 @@ def page_edit_post():
     reco_memo = request.form['memo']
     reco_source = request.form['source_url']
 
-    if request.files['img'].filename == '':
-        reco_imgfile = request.form['img_before']
+
+    if 'instagram' in reco_source:
+        source_user_id  = crawl.getInstaId(reco_source)
+        print("instagram")
+        result = requests.post(
+            'http://www.dinsta.com/photos/',
+            data = {
+                'url': reco_source
+            }
+        ).text
+
+        tag_start = result.find("<img src=") + 10
+        tag_end = result.find("\"", tag_start)
+
+        img_url = result[tag_start:tag_end]
+        reco_imgfile = randomFileName(img_url)
+
+        with open("img/"+reco_imgfile, 'wb') as f:
+            f.write(requests.get(img_url).content)
     else:
-        reco_img = request.files['img']
-        reco_imgfile = randomFileName(reco_img.filename)
-        reco_img.save(os.path.join('./img/', reco_imgfile))
+        if request.files['img'].filename == '':
+            reco_imgfile = request.form['img_before']
+        else:
+            reco_img = request.files['img']
+            reco_imgfile = randomFileName(reco_img.filename)
+            reco_img.save(os.path.join('./img/', reco_imgfile))
 
     reco_address = request.form['address']
     reco_distance = request.form['distance']
     reco_price = request.form['price']
     reco_map = request.form['map_url']
+    location_info  = crawl.getLatLanFromMapUrl(reco_map)
+
+    lat = '0';
+    lng = '0';
+
+    if 'lat' in location_info:
+        lat = location_info['lat']
+        lng = location_info['lng']
+
     reco_deep = request.form['deep_url']
     reco_hashtags = request.form['hashtags']
 
@@ -434,7 +503,10 @@ def page_edit_post():
         deep_url = %s,
         distance = %s,
         memo = %s,
-        source_url = %s
+        source_url = %s,
+        lat = %s,
+        lng = %s,
+        source_user_id = %s
         WHERE 
         reco_hashkey = %s
         """
@@ -452,7 +524,10 @@ def page_edit_post():
             reco_deep,
             reco_distance,
             reco_memo,
-            reco_source,
+            reco_source,            
+            lat,
+            lng,
+            source_user_id,
             reco_hashkey
         )
     )

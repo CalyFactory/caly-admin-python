@@ -1,9 +1,34 @@
 <html>
 <head>
+
 <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
 </head>
 
-<body>
+<script>
+
+
+var hashtaglist;
+function onload(){
+    hashtaglist = document.getElementById("hashtaglist").value.split("#");
+}
+
+function onChange(){
+    inputTags = (document.getElementById("hashtags").value).split('/');
+    lastTag = inputTags[inputTags.length-1]
+    console.log(lastTag);
+    
+    outputdata = "";
+    for(var idx in hashtaglist){
+        if(hashtaglist[idx].includes(lastTag)){
+            outputdata+="#"+hashtaglist[idx]+" ";
+        }
+    }
+
+    document.getElementById("hashtagfilter").innerText = outputdata;
+}
+</script>
+</head>
+<body onload="onload();">
 
 
 <form method="POST" align="center" width="70%">
@@ -16,17 +41,9 @@
 </p>
 <hr />
 
-<table id="tbMango" border="1"  width = "100%" style="float:left;">
-    <tr>
-        <td colspan="2" bgcolor="yellow" align="center">
-        mango top 10
-        </td>        
-    </tr>    
-    <!-- <div  >
-    </div> -->
-</table>
+<!-- style="float:left;" -->
 
-<table border="1"  width = "50%" style="float:left; margin-left: 20px">
+<table border="1"  width = "50%" align="center" 20px">
 
 <tr>
     <td colspan="11">
@@ -93,6 +110,8 @@
             <input type="text" id = "title" name="title" placeholder="ex)호타루"/>
         </td>
         <td>
+            인스타그램은 이미지 업로드없이 출처만 넣으면 자동으로 이미지를 가져옵니다.
+            (url이 인스타그램일 경우에만 동작함)
             <input type="file" name="img" accept=".jpg,.png,.jped,.bmp,.gif,.bpg"/>
         </td>
     </tr>
@@ -143,7 +162,14 @@
     </tr>
     <tr>
         <td colspan="100">
-            <input type="text" name="hashtags" style="width:100%" placeholder="맛있는/여친이랑 가기 좋은/분위기있는/역에서 가까운"/>
+            <input 
+            id="hashtags"
+            type="text" 
+            name="hashtags" 
+            style="width:100%" 
+            placeholder="맛있는/여친이랑 가기 좋은/분위기있는/역에서 가까운"
+            onkeyup="onChange();"
+            />
         </td>
     </tr>
     <tr>
@@ -167,6 +193,17 @@
 </table>
 <hr/>
 
+<table id="tbMango" border="1"  width = "100%" align="center" >
+    <tr>
+        <td colspan="2" bgcolor="yellow" align="center">
+        mango top 10
+        </td>        
+    </tr>    
+    <!-- <div  >
+    </div> -->
+</table>
+
+
 <table border = 1 align="center" width="70%">
     <tr>
         <td colspan="2">
@@ -175,7 +212,10 @@
     </tr>
     <tr>
         <td>
-            {{hashtags}}
+            <input type="hidden" id="hashtaglist" value="{{hashtags}}"/>
+            <div id="hashtagfilter">
+                {{hashtags}}
+            </div>
         </td>
     </tr>
 

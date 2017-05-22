@@ -43,57 +43,74 @@ def getLatLanFromMapUrl(map_url):
     
     
     try:
-        r = requests.get(map_url, headers=headers)
-        soup = BeautifulSoup(r.content, 'html.parser', from_encoding='utf-8')
-        
-        
         result_dic = {}
-        op_image = soup.find("meta",  property="og:image")
-        print(op_image)
+        r = requests.get(map_url, headers=headers)
+        soup = BeautifulSoup(r.content, 'html.parser', from_encoding='utf-8')        
 
-        op_maperPos = op_image["content"].find("center=")+ 7
-        commaPos = op_image["content"].find("%2C")
-        levelPos = op_image["content"].find("&zoom=")
-        
-        if commaPos != -1 :                     
-            lat = op_image["content"][op_maperPos:commaPos]
-            lng = op_image["content"][commaPos+COMMA_SIZE:levelPos]
-            print('long=>' + lng[:11] + 'lat =>' + lat[:10]) 
-            result_dic['lat'] = lat[:10]
-            result_dic['lng'] = lng[:11]
-            return result_dic
-        else:
-            print('none default type')
-            return result_dic   
+        if "https://www.google.co.kr/maps" in map_url:
+
+            
+            
+            
+            op_image = soup.find("meta",  property="og:image")
+            print(op_image)
+
+            op_maperPos = op_image["content"].find("center=")+ 7
+            commaPos = op_image["content"].find("%2C")
+            levelPos = op_image["content"].find("&zoom=")
+            
+            if commaPos != -1 :                     
+                lat = op_image["content"][op_maperPos:commaPos]
+                lng = op_image["content"][commaPos+COMMA_SIZE:levelPos]
+                print('long=>' + lng[:11] + 'lat =>' + lat[:10]) 
+                result_dic['lat'] = lat[:10]
+                result_dic['lng'] = lng[:11]
+                return result_dic
+            else:
+                print('none default type')
+                return result_dic   
+
+        if "naver" in map_url:
+            print(soup)                    
+            strSoup = str(soup)
+            print(strSoup[:31])
+
+            if strSoup[:31] == "<script>window.location.replace":
+                print("run")
+                startIndex = strSoup.find("replace(") + 9                                
+                endIndex = strSoup.find(");</script>") - 1
+                redirectUrl = strSoup[startIndex:endIndex]
+
+                r = requests.get(redirectUrl, headers=headers)
+                soup = BeautifulSoup(r.content, 'html.parser', from_encoding='utf-8')      
+
+
+            ogImage = soup.find("meta",  property="og:image")
+
+            # print(ogImage["content"] if ogImage else "No meta title given")
+
+            op_maperPos = ogImage["content"].find("og_map¢er=") + 10
+            commaPos = ogImage["content"].find("%2C")
+            levelPos = ogImage["content"].find("&level")
+
+            result_dic = {}
+
+            #url에서 올바르게 파싱을 하였다면?
+            if commaPos != -1 :                     
+                lng = ogImage["content"][op_maperPos:commaPos]
+                lat = ogImage["content"][commaPos+COMMA_SIZE:levelPos]
+                print('long=>' + lng+ 'lat =>' + lat) 
+                result_dic['lng'] = lng
+                result_dic['lat'] = lat
+                return result_dic
+
+            else :
+                print('none default type')
+                return result_dic
+
     except Exception as e:
         return result_dic
         print(str(e))
-
-    # if map_url.find("openapi.naver.com") == -1 :
-    #     try:
-    #         ogImage = soup.find("meta",  property="og:image")
-    #         # url = soup.find("meta",  property="og:url")
-
-    #         print(ogImage["content"] if ogImage else "No meta title given")
-
-    #         op_maperPos = ogImage["content"].find("center=")+ 7
-    #         commaPos = ogImage["content"].find("%2C")
-    #         levelPos = ogImage["content"].find("&level")
-
-    #         result_dic = {}
-
-    #         #url에서 올바르게 파싱을 하였다면?
-    #         if commaPos != -1 :                     
-    #             lng = ogImage["content"][op_maperPos:commaPos]
-    #             lat = ogImage["content"][commaPos+COMMA_SIZE:levelPos]
-    #             print('long=>' + lng+ 'lat =>' + lat) 
-    #             result_dic['lng'] = lng
-    #             result_dic['lat'] = lat
-    #             return result_dic
-
-    #         else :
-    #             print('none default type')
-    #             return result_dic
 
 
 def getInstaId(source_url):
